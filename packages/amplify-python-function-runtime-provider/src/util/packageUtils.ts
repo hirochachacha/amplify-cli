@@ -19,12 +19,18 @@ export async function pythonPackage(context: any, params: PackageRequest): Promi
       });
       const zip = archiver.create('zip', {});
       zip.pipe(file);
-      zip.glob('**/*', {
-        // TODO potentially get 'src' as an input from template breadcrumb
-        cwd: path.join(params.srcRoot, 'src'),
-        ignore: ['**/dist/**', '**/__pycache__/**'],
-      });
-      zip.directory(await getPipenvDir(params.srcRoot), false);
+      zip.glob(
+        '**/*',
+        {
+          // TODO potentially get 'src' as an input from template breadcrumb
+          cwd: path.join(params.srcRoot, 'src'),
+          ignore: ['**/dist/**', '**/__pycache__/**'],
+        },
+        {
+          prefix: params.isLayer ? 'python' : undefined,
+        },
+      );
+      zip.directory(await getPipenvDir(params.srcRoot), params.isLayer ? 'python' : false);
       zip.finalize();
     });
   }
